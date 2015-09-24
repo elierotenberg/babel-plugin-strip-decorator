@@ -14,11 +14,13 @@ import stripDecorator from 'babel-plugin-strip-decorator';
 
 babel.transform(code, {
   plugins: [{
-    transformer: stripDecorator('devDecorator'), // the name of the target decorator has no '@'
-    position: 'before', // must be applied before es7.decorators transform
+    // the name of the target decorator has no '@'
+    transformer: stripDecorator('devDecorator'),
+    // must be applied before es7.decorators transform
+    position: 'before',
   }],
 });
-```js
+```
 
 In this case, the following code:
 
