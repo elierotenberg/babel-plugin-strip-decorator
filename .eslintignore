@@ -1,4 +1,2 @@
 node_modules
-*.pid
-*.lock
 dist

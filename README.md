@@ -41,15 +41,17 @@ class A {
 
 ### API
 
-`stripDecorator(decoratorName)` **returns** a `babel` plugin which removes all occurences of decorators named `decoratorName`.
-You can of course chain multiple such generated plugins, eg. using:
+`stripDecorator(...decoratorNames)` **returns** a `babel` plugin which removes all occurences of decorators in the form
+`@decoratorName` or `@decoratorName(...)` where `decoratorName` is any string in `decoratorNames`.
 
 ```js
 babel.transform(code, {
   plugins: [
-    { transformer: stripDecorator('decoratorA'), position: 'before' },
-    { transformer: stripDecorator('decoratorB'), position: 'before' },
-    { transformer: stripDecorator('decoratorC'), position: 'before' },
+    { transformer: stripDecorator(
+      'decoratorA',
+      'decoratorB',
+      'decoratorC'
+    ), position: 'before' },
   ],
 });
 ```
@@ -75,5 +77,5 @@ class A {
   @causeSideEffect(a = a + 1)
   test() { ... }
 }
-assert(a === 1);
+assert(a === 1); // will throw only if stripDecorator('causeSideEffect') is applied
 ```

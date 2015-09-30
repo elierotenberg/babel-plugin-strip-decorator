@@ -1,9 +1,10 @@
 {
   "name": "babel-plugin-strip-decorator",
   "version": "0.0.1",
-  "description": "",
+  "description": "Babal plugin to remove decorators based on their identifiers.",
   "main": "dist/index.js",
   "scripts": {
+    "prepublish": "gulp",
     "test": "gulp test"
   },
   "repository": {

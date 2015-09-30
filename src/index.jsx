@@ -1,9 +1,15 @@
-export default function stripDecorator(decoratorName) {
+export default function stripDecorator(...decoratorNames) {
   return function transformer({ Plugin, types }) {
-    function isDecoratorWithName(decorator) {
-      return types.isDecorator(decorator) &&
-        types.isCallExpression(decorator.expression) &&
-        types.isIdentifier(decorator.expression.callee, { name: decoratorName });
+    function getDecoratorName(decorator) {
+      if(!types.isDecorator(decorator)) {
+        return void 0;
+      }
+      if(types.isIdentifier(decorator.expression)) {
+        return decorator.expression.name;
+      }
+      if(types.isCallExpression(decorator.expression)) {
+        return types.isIdentifier(decorator.expression.callee) && decorator.expression.callee.name;
+      }
     }
     return new Plugin('strip-decorator', {
       visitor: {
@@ -12,7 +18,7 @@ export default function stripDecorator(decoratorName) {
           if(!decorators) {
             return node;
           }
-          node.decorators = decorators.filter((decorator) => !isDecoratorWithName(decorator));
+          node.decorators = decorators.filter((decorator) => !decoratorNames.includes(getDecoratorName(decorator)));
           if(node.decorators.length === 0) {
             delete node.decorators;
           }

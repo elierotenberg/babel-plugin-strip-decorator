@@ -14,30 +14,26 @@ describe('stripDecorator', () => {
     }).code;
   }
   const defaultTransformer = makeTransformer([]);
-  const stripDecoratorTransformer = (decorator) =>
-    makeTransformer([{ transformer: stripDecorator(decorator), position: 'before' }]);
-  const codeWithoutDecorator = `
-    class A {
-      test() {
-        return this;
+  function stripDecoratorTransformer(...decoratorNames) {
+    return makeTransformer([{ transformer: stripDecorator(...decoratorNames), position: 'before' }]);
+  }
+  function genCode(...decoratorNames) {
+    return `
+      class A {
+        ${decoratorNames.map((decoratorName) => `@${decoratorName}`).join(' ')}
+        test() {
+          return this;
+        }
       }
-    }
-    function decoratorA() { // no-op decorator
-      return (target, key, desc) => desc;
-    }
-  `;
-  const codeWithDecoratorA = `
-    class A {
-      @decoratorA()
-      test() {
-        return this;
+      function decoratorA() { // no-op decorator
+        return (target, key, desc) => desc;
       }
-    }
-    function decoratorA() { // no-op decorator
-      return (target, key, desc) => desc;
-    }
-  `;
-  const codeWithDecoratorB = codeWithDecoratorA.replace('decoratorA', 'decoratorB');
+    `;
+  }
+  const codeWithoutDecorator = genCode();
+  const codeWithDecoratorA = genCode('decoratorA');
+  const codeWithDecoratorB = genCode('decoratorB()');
+  const codeWithBothDecorators = genCode('decoratorA', 'decoratorB()');
   it('should do nothing when no decorator is present', () =>
     should(stripDecoratorTransformer('decoratorA')(codeWithoutDecorator))
     .be.exactly(defaultTransformer(codeWithoutDecorator))
@@ -50,4 +46,14 @@ describe('stripDecorator', () => {
     should(stripDecoratorTransformer('decoratorA')(codeWithDecoratorA))
     .be.exactly(defaultTransformer(codeWithoutDecorator))
   );
+  it('should strip only decorator with the given name', () => {
+    should(stripDecoratorTransformer('decoratorA')(codeWithBothDecorators))
+    .be.exactly(defaultTransformer(codeWithDecoratorB));
+    should(stripDecoratorTransformer('decoratorB')(codeWithBothDecorators))
+    .be.exactly(defaultTransformer(codeWithDecoratorA));
+  });
+  it('should strip multiple decorators', () => {
+    should(stripDecoratorTransformer('decoratorA', 'decoratorB')(codeWithBothDecorators))
+    .be.exactly(defaultTransformer(codeWithoutDecorator));
+  });
 });
